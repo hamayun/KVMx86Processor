@@ -36,8 +36,15 @@ void cpu_init_pmode_idt(void)
    __asm__ volatile ("lidtl %0" : : "m" (idt_ptr));
 }
 
-void isr_handler(registers_t regs)
+void isr_handler(guest_reg_state_t regs)
 {
+    uint32_t regs_addr = & regs;
+
+    /* pass control to user-space gdb server; for further processsing */
+    __asm__ volatile ("movl %0,%%eax" : : "m" (regs_addr));
+    __asm__ volatile ("outl %eax,$0xE3");
+
+#if 0
     if (regs.int_no == 0x1)
     {
         __asm__ volatile ("movl %0,%%eax" : : "m" (regs.eip));
@@ -45,13 +52,11 @@ void isr_handler(registers_t regs)
     }
     else if(regs.int_no == 0x3)
     {
-        /* decrement eip; so we re-execute the original instruction */
-        /* regs.eip -= 1; */
         /* pass control to user-space gdb server; for further processsing */
         __asm__ volatile ("movl %0,%%eax" : : "m" (regs.eip));
         __asm__ volatile ("outl %eax,$0xE3");
     }
-
+#endif
     return;
 }
 
