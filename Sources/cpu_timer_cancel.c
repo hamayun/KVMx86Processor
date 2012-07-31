@@ -16,11 +16,14 @@
  */
 
 #include <Processor/Processor.h>
+#include <Processor/apic_regs.h>
 #include <Platform/Platform.h>
+//#include <SoclibPlatformDriver/Driver.h>
+
+extern volatile unsigned long *local_apic_mem;
 
 void cpu_timer_cancel (int32_t id)
 {
-  soclib_timer_port_t timer = & PLATFORM_TIMER_BASE[id];
-  cpu_write(UINT32, & (timer -> mode), 1);
+    local_apic_mem[LAPIC_INITIAL_COUNTER >> 2] = 0;
 }
 

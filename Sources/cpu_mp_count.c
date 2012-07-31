@@ -3,6 +3,6 @@
 
 int32_t cpu_mp_count (void)
 {
-  return 1;
+    return no_cpus_up;
 }
 
