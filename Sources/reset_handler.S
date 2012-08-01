@@ -45,12 +45,15 @@ reset_handler:
 
     call    tsc_calibrate
     sti
+#	int     $LAPIC_IPI_VECTOR    # Works ... But as isr_ipi is NULL; We can't really do an IPI here.
     jmp     5f
 
 4:
     lidt    boot_idt_descr      # cpu != 0
     call    local_apic_setup
     
+	# int     $LAPIC_IPI_VECTOR # Works for CPU!= 0 as well ... But as isr_ipi is NULL; We can't really do an IPI here.
+
     # Compute the basic stack addresses
     call    cpu_mp_id
     mov     %eax, %ebp
@@ -76,6 +79,7 @@ idt_setup:
 
     lea     boot_idt_table, %edi
     mov     $256, %ecx
+
 rp_sidt:
     movl    %eax, (%edi)
     movl    %edx, 4(%edi)
@@ -208,7 +212,7 @@ ipi_int:
 
     # call    cpu_mp_id
     # push    %eax
-    # push    $msg_timer_int
+    # push    $msg_ipi_int
     # call    tty_print_info
     # add     $8, %esp
     
@@ -265,5 +269,6 @@ msg_fatal_fault: .string "Fatal interrupt %ld (code 0x%lx) occured on cpu %ld.\n
 msg_hell_pit: .string "Hell pit reached by cpu %ld.\n"
 msg_no_lapic: .string "No local local APIC found on this computer.\n"
 msg_timer_int: .string "Timer interrupt occured on cpu %ld.\n"
+msg_ipi_int: .string "IPI interrupt occured on cpu %ld.\n"
 msg_lapic_error: .string "Local APIC error interrupt occured on cpu %ld.\n"
 

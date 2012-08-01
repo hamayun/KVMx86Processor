@@ -2,7 +2,6 @@
 #define SILLY_APIC_H
 
 #define LOCAL_APIC_BASE             0xFEE00000
-//#define LOCAL_APIC_BASE             0xFEE00900
 #define LAPIC_CPU_ID                0x20
 #define LAPIC_EOI                   0xB0
 #define LAPIC_SPURIOUS              0x0F0

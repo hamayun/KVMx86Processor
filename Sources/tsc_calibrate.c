@@ -31,7 +31,6 @@ void tsc_calibrate ()
 	uint64_t        tsc_start, tsc_delta;
 	uint32_t        local_timer_end;
     uint8_t         old61;
-	char            str[80] = {0};
 
 	/* Set the Gate high, disable speaker */
 	old61 = inb (0x61);
@@ -55,8 +54,7 @@ void tsc_calibrate ()
     cpu_cycles_per_ms = tsc_delta / CALIBRATE_MS;
     cpu_bus_cycles_per_ms = (( 0xFFFFFFFF - local_timer_end)) / CALIBRATE_MS;
 
-    tty_print_info ("CPU frequency=%lld MHz, CPU Bus frequency=%lld MHz\n",
+    tty_print_info ("CPU frequency=%lldMHz, CPU Bus frequency=%lldMHz\n",
         cpu_cycles_per_ms / 1000, cpu_bus_cycles_per_ms / 1000);
-
 }
 

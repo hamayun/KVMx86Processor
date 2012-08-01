@@ -24,7 +24,6 @@ typedef struct
     void        *data;
     int32_t     status;
 } cpu_ipi_par;
-
 extern volatile cpu_ipi_par cpu_ipi_pars[32];
 
 #endif
