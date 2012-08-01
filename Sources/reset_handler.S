@@ -21,7 +21,7 @@ LAPIC_ERROR_VECTOR              = 0XEE
 LAPIC_IPI_VECTOR                = 0XED
 
     .code32
-    .section ".reset","ax"
+    .section ".init","ax"
 
     .globl reset_handler;
 reset_handler:
@@ -39,7 +39,7 @@ reset_handler:
     cmp     $1, first_cpu
     jne     4f
     movl    $0, first_cpu
-    movl    CPU_SYS_STACK_ADDR, %esp
+    movl    CPU_SVC_STACK_ADDR, %esp
     call    idt_setup
     call    local_apic_setup
 
@@ -59,7 +59,7 @@ reset_handler:
     mov     %eax, %ebp
     mov     $0x400, %ecx
     mul     %ecx
-    movl    CPU_SYS_STACK_ADDR, %ecx
+    movl    CPU_SVC_STACK_ADDR, %ecx
     subl    %eax, %ecx
     movl    %ecx, %esp
     
