@@ -34,6 +34,7 @@ void tsc_calibrate ()
 
 	/* Set the Gate high, disable speaker */
 	old61 = inb (0x61);
+
 	outb ((old61 & ~0x02) | 0x01, 0x61);
 
 	// PIT Counter 2, mode 0 (interrupt on terminal count), binary count
@@ -43,6 +44,7 @@ void tsc_calibrate ()
 
 	tsc_start = get_cycles ();
 	local_apic_mem[LAPIC_INITIAL_COUNTER >> 2] = 0xFFFFFFFF;
+
 	while ((inb (0x61) & 0x20) == 0)
 	    ;
     local_timer_end = local_apic_mem[LAPIC_CURRENT_COUNTER >> 2];
@@ -54,7 +56,7 @@ void tsc_calibrate ()
     cpu_cycles_per_ms = tsc_delta / CALIBRATE_MS;
     cpu_bus_cycles_per_ms = (( 0xFFFFFFFF - local_timer_end)) / CALIBRATE_MS;
 
-    tty_print_info ("CPU frequency=%lldMHz, CPU Bus frequency=%lldMHz\n",
-        cpu_cycles_per_ms / 1000, cpu_bus_cycles_per_ms / 1000);
+    tty_print_info ("CPU Frequency=%lldMHz \t\t[%lld cycles/ms]\nCPU Bus Frequency=%lldMHz \t[%lld cycles/ms]\n",
+        cpu_cycles_per_ms / 1000, cpu_cycles_per_ms, cpu_bus_cycles_per_ms / 1000, cpu_bus_cycles_per_ms);
 }
 
