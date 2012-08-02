@@ -42,7 +42,7 @@ void smp_init (void)
 
     // send SIPI
     int32_t   cpu, i;
-    for (cpu = 1; cpu <= 9; cpu++)
+    for (cpu = 1; cpu <= KVM_MAX_CPU_COUNT; cpu++)
     {
         local_apic_mem[LAPIC_ICR_HIGH >> 2] = cpu << 24;
         local_apic_mem[LAPIC_ICR_LOW >> 2] = 0x00004630;
