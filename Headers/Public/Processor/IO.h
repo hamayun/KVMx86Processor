@@ -3,25 +3,6 @@
 
 #include <stdint.h>
 
-#define BUILDIO(bwl, bw, type) \
-static inline void out##bwl (unsigned type value, int port) \
-{ \
-    __asm__ volatile ("out" #bwl " %" #bw "0, %w1" \
-             : : "a" (value), "Nd" (port)); \
-} \
- \
-static inline unsigned type in##bwl (int port) \
-{ \
-    unsigned type value; \
-    __asm__ volatile("in" #bwl " %w1, %" #bw "0" \
-             : "=a" (value) : "Nd" (port)); \
-    return value; \
-}
-
-BUILDIO(b, b, char)
-BUILDIO(w, w, short)
-BUILDIO(l, , int)
-
 /*
  * Write operations.
  */
@@ -50,6 +31,55 @@ BUILDIO(l, , int)
  
 #define cpu_read_UINT32(addr,value)                                   \
   (value) = (__typeof__(value))*((volatile uint32_t *) (addr))
+
+/*
+ * I/O operations.
+ */
+
+#define BUILDIO(bwl, bw, type) \
+static inline void out##bwl (unsigned type value, int port) \
+{ \
+    __asm__ volatile ("out" #bwl " %" #bw "0, %w1" \
+             : : "a" (value), "Nd" (port)); \
+} \
+ \
+static inline unsigned type in##bwl (int port) \
+{ \
+    unsigned type value; \
+    __asm__ volatile("in" #bwl " %w1, %" #bw "0" \
+             : "=a" (value) : "Nd" (port)); \
+    return value; \
+}
+
+BUILDIO(b, b, char)
+BUILDIO(w, w, short)
+BUILDIO(l, , int)
+
+#define cpu_io_write(type,addr,value) cpu_io_write_##type(addr,value)
+
+#define cpu_io_write_UINT8(port,value)                                \
+    outb (value, (int) port)
+
+#define cpu_io_write_UINT16(port,value)                               \
+    outw (value, (int) port)
+
+#define cpu_io_write_UINT32(port,value)                               \
+    outl (value,(int) port)
+
+/*
+ * Read operations.
+ */
+
+#define cpu_io_read(type,addr,value) cpu_io_read_##type(addr,value)
+
+#define cpu_io_read_UINT8(port,value)                                 \
+    (value) = inb (port)
+
+#define cpu_io_read_UINT16(port, value)                               \
+    (value) = inw (port)
+
+#define cpu_io_read_UINT32(port,value)                                \
+    (value) = inl (port)
 
 /*
  * Uncached operations.

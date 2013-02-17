@@ -12,8 +12,8 @@
 #define LAPIC_INITIAL_COUNTER       0x380
 #define LAPIC_CURRENT_COUNTER       0x390
 #define LAPIC_DIVIDE                0x3E0
-#define LAPIC_ERROR_VECTOR          0XEE
-#define LAPIC_IPI_VECTOR            0XED
+#define LAPIC_ERROR_VECTOR          0xEE
+#define LAPIC_IPI_VECTOR            0xED
 
 #endif
 

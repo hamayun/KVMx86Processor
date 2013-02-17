@@ -2,10 +2,10 @@
 
 void cpu_mp_proceed (void)
 {
-    cpu_mp_synchro = 0;
+  cpu_mp_synchro = 0;
 
-    /*
-    * TODO: add the WBFLUSH
-    */
+  /*
+   * TODO: add the WBFLUSH
+   */
 }
 

@@ -20,6 +20,8 @@
 #include <Processor/apic_regs.h>
 #include <string.h>
 
+#include "i8259.h"
+
 extern void system_kickstart (void);
 extern void tty_print_info (char *fmt, ...);
 extern volatile unsigned long *local_apic_mem;
@@ -58,6 +60,8 @@ void smp_init (void)
     }
 
     tty_print_info ("%d processors booted.\n", no_cpus_up);
+
+    i8259_init();
 }
 
 void cpu_start (void)
@@ -73,6 +77,8 @@ void cpu_start (void)
         
         tty_print_info ("Secondary CPU %d booted.\n", cpu);
      }
+
+    __asm__ __volatile__ ("sti");
 
     system_kickstart ();
 }
