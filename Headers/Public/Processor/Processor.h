@@ -19,7 +19,7 @@ extern uint64_t             cpu_bus_cycles_per_ms;
 extern volatile int32_t     no_cpus_up;
 extern volatile uint32_t    cpus_up_mask;
 
-#define KVM_MAX_CPU_COUNT 32
+#define MAX_CPU_COUNT 32
 
 typedef struct
 {
@@ -28,7 +28,7 @@ typedef struct
     int32_t     status;
 } cpu_ipi_par;
 
-extern volatile cpu_ipi_par cpu_ipi_pars[KVM_MAX_CPU_COUNT];
+extern volatile cpu_ipi_par cpu_ipi_pars[MAX_CPU_COUNT];
 
 #endif
 
