@@ -1,6 +1,5 @@
 #include <Processor/Processor.h>
 #include <Platform/Platform.h>
-//#include <SoclibPlatformDriver/Driver.h>
 #include <Processor/apic_regs.h>
 
 extern volatile unsigned long *local_apic_mem;

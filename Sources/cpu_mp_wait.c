@@ -1,13 +1,14 @@
 #include <stdint.h>
 #include <Processor/Processor.h>
-//#include <SoclibPlatformDriver/Driver.h>
 
 void cpu_mp_wait (void)
-{    
-    /*
-    * TODO: add WBFLUSH
-    */    
+{
+  cpu_mp_synchro = 1;
 
-    while ((volatile int32_t) cpu_mp_synchro);
+  /*
+   * TODO: add WBFLUSH
+   */
+
+  while ((volatile int32_t)cpu_mp_synchro);
 }
 

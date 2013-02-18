@@ -16,11 +16,11 @@
  */
 
 #include <Processor/Processor.h>
-//#include <SoclibPlatformDriver/Driver.h>
 #include <Processor/apic_regs.h>
 #include <string.h>
 
 #include "i8259.h"
+#include "io_apic.h"
 
 extern void system_kickstart (void);
 extern void tty_print_info (char *fmt, ...);
@@ -62,6 +62,13 @@ void smp_init (void)
     tty_print_info ("%d processors booted.\n", no_cpus_up);
 
     i8259_init();
+#if 0
+    io_apic_init();
+#endif
+}
+
+void setup_pgtab(void) {
+
 }
 
 void cpu_start (void)
