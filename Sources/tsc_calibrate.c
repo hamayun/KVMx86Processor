@@ -43,6 +43,7 @@ void tsc_calibrate ()
 
 	/* Set the Gate high, disable speaker */
 	old61 = inb (0x61);
+
 	outb ((old61 & ~0x02) | 0x01, 0x61);
 
 	// PIT Counter 2, mode 0 (interrupt on terminal count), binary count
@@ -52,6 +53,7 @@ void tsc_calibrate ()
 
 	tsc_start = get_cycles ();
 	local_apic_mem[LAPIC_INITIAL_COUNTER >> 2] = 0xFFFFFFFF;
+
 	while ((inb (0x61) & 0x20) == 0)
 	    ;
     local_timer_end = local_apic_mem[LAPIC_CURRENT_COUNTER >> 2];
