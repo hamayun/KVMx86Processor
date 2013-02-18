@@ -28,7 +28,7 @@ reset_handler:
     call    cpu_idt_init
     call    local_apic_setup
     call    tsc_calibrate
-    #sti
+    sti
     jmp     5f
 
 4: # cpu > 1
@@ -43,8 +43,7 @@ reset_handler:
     movl    CPU_SYS_STACK_ADDR, %ecx
     subl    %eax, %ecx
     movl    %ecx, %esp
-    
-    #sti
+    sti
 
 5:
     # Call cpu_start

@@ -2,70 +2,59 @@
 #include <DnaTools/C.h>
 #include <string.h>
 
+#define SET_REGISTER(base, depl, val) ((*(uint32_t *)(((uint8_t *)base) + depl)) = val)
 // This is used by AnnotationManager
 volatile uint32_t current_thread_context = 0xFFFFFFFF;
 
 void cpu_context_init(cpu_context_t * ctx, void * sp, int32_t ssize, void * entry, void * arg)
 {
-    uintptr_t *pnewstack, *pctx, *ebp_orig;
-    uintptr_t ctx_save_start = 0;
+    uintptr_t *pnewstack, *ebp_orig;
 
     memset(ctx, 0, sizeof (cpu_context_t));
-    ctx_save_start = ((uintptr_t) ctx + CPU_CONTEXT_SIZE - sizeof(uintptr_t)) & ~0xF;
 
-    // The first entry gives us the current location of push/pop pointer on context.
-    *((uintptr_t *) ctx) = ctx_save_start;
-
-    // Get the 16-bit Aligned Address for our Stack Top.
+    /*
+     * Setup stack
+     */
+    /* Get the 16-bit Aligned Address for our Stack Top. */
+    /* BKS: 16-bit ????? */
     pnewstack = (uintptr_t *) (((uintptr_t) sp + ssize - sizeof(uintptr_t)) & ~0xF);
     ebp_orig = pnewstack;
 
-    /* Get the context push/pop location; the first entry of context has it */
-    pctx = (uintptr_t *) *((uintptr_t *) ctx);
-
-    // "push (%%ebp) \n"                /* The ebp of calling thread's stack (ebp_orig) */
-    *--pctx = (uintptr_t) ebp_orig;     /* We consider the start of new stack is our original ebp */
-
-    // "push 0x8(%%ebp) \n"             /* The (entry) address at which we should return; when the context is loaded */
-    *--pctx = (uintptr_t) entry;
-
-    // "push %%ebp \n"                  /* Current position of the ebp_temp, its different from the thread stack's original ebp (ebp_orig) */
-    *--pctx = (uintptr_t) 0;            /* We dont know this yet, will patch it later into the context, see below */
-
-    /* Push default flags ?? */
-    *--pctx = (uintptr_t) 0x00000046; /* EFLAGS */
-
-    /* general purpose registers default values */
-    *--pctx = (uintptr_t) 0; /* EDI */
-    *--pctx = (uintptr_t) 0; /* ESI */
-    *--pctx = (uintptr_t) 0; /* EBP */
-    *--pctx = (uintptr_t) 0; /* ESP; Ignored here */
-    *--pctx = (uintptr_t) 0; /* EBX */
-    *--pctx = (uintptr_t) 0; /* EDX */
-    *--pctx = (uintptr_t) 0; /* ECX */
-    *--pctx = (uintptr_t) 0; /* EAX */
-
-    // Write (not push) the Argument on the stack's ebp_orig
+    /* Write (not push) the Argument on the stack's ebp_orig */
     *pnewstack = (uintptr_t) arg;
 
-    // The Return Address in the New Stack; Obviousely it should be invalid.
-    *--pnewstack = 0xDEADBEAF;
+    /* The Return Address in the New Stack; Obviousely it should be invalid. */
+    *--pnewstack = 0xDEADBEEF;
 
-    // Now move the stack pointer down to make space for @entry, @ctx & ebp_orig;
-    // These will be restored by cpu_context_load from the context.
+    /*
+     * Now move the stack pointer down to make space for
+     * EBP, EFLAGS et EIP in cpu_context_load.
+    */
     pnewstack -= 3;
 
-    // Patch the New Stack's address in the context as the context needs to know it for our ebp_temp (!ebp_orig)
-    *((uintptr_t *) ctx_save_start - 3) = (uintptr_t) pnewstack;
+    /*
+     * Set registers
+     */
+    SET_REGISTER(ctx, CPU_CTXT_CANARY0, CPU_CTXT_CANARY0_VAL);
+    SET_REGISTER(ctx, CPU_CTXT_EAX    , 0x00000000);
+    SET_REGISTER(ctx, CPU_CTXT_ECX    , 0x00000000);
+    SET_REGISTER(ctx, CPU_CTXT_EDX    , 0x00000000);
+    SET_REGISTER(ctx, CPU_CTXT_EBX    , 0x00000000);
+    SET_REGISTER(ctx, CPU_CTXT_ESP    , pnewstack);
+    SET_REGISTER(ctx, CPU_CTXT_EBP    , ebp_orig);
+    SET_REGISTER(ctx, CPU_CTXT_ESI    , 0x00000000);
+    SET_REGISTER(ctx, CPU_CTXT_EDI    , 0x00000000);
+    SET_REGISTER(ctx, CPU_CTXT_EFLAGS , 0x00000246); /* EFLAGS: IF ZF PF reserved  */
+    SET_REGISTER(ctx, CPU_CTXT_EIP    , entry);
+    SET_REGISTER(ctx, CPU_CTXT_CANARY1, CPU_CTXT_CANARY1_VAL);
 
-    // Update our push/pop pointer in the first entry of our context
-    *((uintptr_t *) ctx) = (uintptr_t) pctx;
 
-#ifdef DEBUG_PROCESSOR_CONTEXT
+
+    #ifdef DEBUG_PROCESSOR_CONTEXT
     print_context(ctx);
     print_context_mem(ctx);
     print_stack(sp, ssize, 10);
-#endif
+    #endif
 
     return;
 }
@@ -123,3 +112,4 @@ void print_context_mem(cpu_context_t *ctx)
     dna_printf("--------------------------------------------------------------\n");
 }
 #endif
+

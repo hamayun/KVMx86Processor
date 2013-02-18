@@ -18,7 +18,6 @@
 #include <Processor/Processor.h>
 #include <Platform/Platform.h>
 #include <Processor/apic_regs.h>
-//#include <SoclibPlatformDriver/Driver.h>
 
 void cpu_timer_get (int32_t id, bigtime_t * value)
 {

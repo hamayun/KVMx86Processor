@@ -18,8 +18,6 @@
 #include <Processor/Processor.h>
 #include <Platform/Platform.h>
 #include <Processor/apic_regs.h>
-//#include <SoclibPlatformDriver/Driver.h>
-#include <stdio.h>
 
 extern void tty_print_info (char *fmt, ...);
 extern volatile unsigned long *local_apic_mem;

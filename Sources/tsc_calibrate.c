@@ -1,5 +1,4 @@
 #include <Processor/Processor.h>
-//#include <SoclibPlatformDriver/Driver.h>
 #include <Processor/apic_regs.h>
 
 #define PIT_COUNTER_0       0x40
@@ -25,6 +24,16 @@ void blocking_usleep (int us)
 	
 	while (get_cycles () < tsc_end) ;
 }
+
+void blocking_nsleep (int ns)
+{
+	uint64_t        tsc_end;
+	
+	tsc_end = get_cycles () + (ns * cpu_cycles_per_ms) / 1000000;
+	
+	while (get_cycles () < tsc_end) ;
+}
+
 
 void tsc_calibrate ()
 {
@@ -54,7 +63,7 @@ void tsc_calibrate ()
     cpu_cycles_per_ms = tsc_delta / CALIBRATE_MS;
     cpu_bus_cycles_per_ms = (( 0xFFFFFFFF - local_timer_end)) / CALIBRATE_MS;
 
-    tty_print_info ("CPU frequency=%lldMHz, CPU Bus frequency=%lldMHz\n",
-        cpu_cycles_per_ms / 1000, cpu_bus_cycles_per_ms / 1000);
+    dna_printf ("CPU frequency=%lldMHz, CPU Bus frequency=%lldMHz\n",
+				cpu_cycles_per_ms / 1000, cpu_bus_cycles_per_ms / 1000);
 }
 

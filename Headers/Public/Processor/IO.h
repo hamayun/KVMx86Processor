@@ -3,19 +3,26 @@
 
 #include <stdint.h>
 
-/*
- * Write operations.
- */
+
+void cpu_vector_transfer (void * source, void * destination, uint32_t count);
+
+#if 0
+
+#define cpu_write(type,addr,value) cpu_io_write(type,addr,value)
+#define cpu_read(type,addr,value) cpu_io_read(type,addr,value)
+
+#else
+
 #define cpu_write(type,addr,value) cpu_write_##type(addr,value)
- 
+
 #define cpu_write_UINT8(addr,value)                                   \
-  *((volatile uint8_t *)(addr)) = (uint8_t)(value)
- 
+	 *((volatile uint8_t *)(addr)) = (value)
+
 #define cpu_write_UINT16(addr,value)                                  \
-  *((volatile uint16_t *)(addr)) = (uint16_t)(value)
- 
+	 *((volatile uint16_t *)(addr)) = (value)
+
 #define cpu_write_UINT32(addr,value)                                  \
-  *((volatile uint32_t *)(addr)) = (uint32_t)(value)
+	 *((volatile uint32_t *)(addr)) = (value)
 
 /*
  * Read operations.
@@ -24,13 +31,15 @@
 #define cpu_read(type,addr,value) cpu_read_##type(addr,value)
 
 #define cpu_read_UINT8(addr,value)                                    \
-  (value) = (__typeof__(value))*((volatile uint8_t *) (addr))
- 
+	 (value) = *(volatile uint8_t *)(addr)
+
 #define cpu_read_UINT16(addr, value)                                  \
-  (value) = (__typeof__(value))*((volatile uint16_t *) (addr))
- 
+	 (value) = *(volatile uint16_t *)(addr)
+
 #define cpu_read_UINT32(addr,value)                                   \
-  (value) = (__typeof__(value))*((volatile uint32_t *) (addr))
+	 (value) = *(volatile uint32_t *)(addr)
+
+#endif
 
 /*
  * I/O operations.
@@ -127,6 +136,20 @@ BUILDIO(l, , int)
     cpu_vector_transfer (from, to, len)
 
 #define cpu_vector_read(mode,to,from,len) cpu_vector_write_##mode(to,from,len)
+
+static inline uint64_t get_cycles (void)
+{
+    uint32_t        lo, hi;
+    __asm__ __volatile__ (
+        // serialize
+        "xorl %%eax,%%eax\ncpuid"
+        ::: "%rax", "%rbx", "%rcx", "%rdx");
+
+    /* We cannot use "=A", since this would use %rax on x86_64 and return only the lower 32bits of the TSC */
+    __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+ 
+    return ((uint64_t) hi) << 32 | lo;
+}
 
 #endif
 
